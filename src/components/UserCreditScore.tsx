@@ -69,7 +69,13 @@ export function UserCreditScore() {
           <div className="text-xs text-muted-foreground">out of 100</div>
         </div>
         
-        <Progress value={creditScore} className="h-2" indicatorClassName={getProgressColor(creditScore)} />
+        <Progress value={creditScore} className="h-2" />
+        <div className={`h-2 w-full rounded-full overflow-hidden mt-[-8px]`}>
+          <div 
+            className={`h-full ${getProgressColor(creditScore)}`} 
+            style={{ width: `${creditScore}%` }}
+          ></div>
+        </div>
         
         <div className="mt-4 space-y-3">
           <div className="flex items-start space-x-2">

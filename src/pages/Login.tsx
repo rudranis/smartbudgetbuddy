@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LoginForm } from "@/components/LoginForm";
-import { MoveRight, Bulb } from "lucide-react";
+import { MoveRight, LightbulbIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
@@ -21,7 +21,7 @@ const Login = () => {
     <div className="min-h-screen grid md:grid-cols-2">
       <div className="hidden md:flex flex-col justify-between bg-primary/10 dark:bg-primary/5 p-10">
         <div className="flex items-center space-x-2">
-          <Bulb className="h-6 w-6 text-primary" />
+          <LightbulbIcon className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold">SmartBudget</span>
         </div>
         
@@ -74,7 +74,7 @@ const Login = () => {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:hidden">
             <div className="flex items-center justify-center space-x-2 mb-2">
-              <Bulb className="h-6 w-6 text-primary" />
+              <LightbulbIcon className="h-6 w-6 text-primary" />
               <span className="text-xl font-bold">SmartBudget</span>
             </div>
             <h1 className="text-2xl font-bold">Smart Budget, Smarter You!</h1>

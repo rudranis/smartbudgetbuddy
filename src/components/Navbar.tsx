@@ -26,7 +26,7 @@ import {
   X,
   LogOut,
   Settings,
-  Bulb,
+  LightbulbIcon,
   BarChart2,
   CreditCard
 } from "lucide-react";
@@ -93,7 +93,7 @@ const Navbar = () => {
             className="flex items-center space-x-2"
             onClick={closeMobileMenu}
           >
-            <Bulb className="h-6 w-6 text-primary" />
+            <LightbulbIcon className="h-6 w-6 text-primary" />
             <span className="text-primary font-bold text-xl">SmartBudget</span>
           </Link>
 
@@ -269,7 +269,7 @@ const Navbar = () => {
           
           <div className="mt-8 pt-6 border-t">
             <div className="flex items-center justify-center">
-              <Bulb className="h-5 w-5 text-primary mr-2" />
+              <LightbulbIcon className="h-5 w-5 text-primary mr-2" />
               <p className="text-sm text-center italic">Smart Budget, Smarter You!</p>
             </div>
           </div>
