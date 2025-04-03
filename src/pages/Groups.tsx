@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import GroupCard, { Group, GroupMember } from "@/components/GroupCard";
@@ -168,7 +169,7 @@ const Groups = () => {
       totalAmount: group.totalAmount,
       date: group.date.toISOString().split("T")[0],
       members: groupMembers,
-      status: "pending" as const,
+      status: "pending" as "pending" | "settled" | "overdue",
     };
     
     setGroups([newGroup, ...groups]);
@@ -194,7 +195,7 @@ const Groups = () => {
         return { 
           ...group, 
           members: updatedMembers,
-          status: allPaid ? "settled" : "pending" as const
+          status: allPaid ? ("settled" as "pending" | "settled" | "overdue") : ("pending" as "pending" | "settled" | "overdue")
         };
       }
       return group;
