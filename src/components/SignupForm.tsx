@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -32,6 +33,40 @@ export function SignupForm() {
   const { signup } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<"student" | "professional">("student");
+  const { language } = useLanguage();
+
+  const translations = {
+    en: {
+      student: "Student",
+      professional: "Professional",
+      fullName: "Full Name",
+      email: "Email",
+      password: "Password",
+      nameInput: "Enter your name",
+      emailInput: "Enter your email",
+      passwordInput: "Create a password",
+      creating: "Creating account...",
+      createAccount: "Create Account",
+      iAmA: "I am a:",
+      successMessage: "Account created! Welcome to SmartBudget.",
+    },
+    mr: {
+      student: "विद्यार्थी",
+      professional: "व्यावसायिक",
+      fullName: "पूर्ण नाव",
+      email: "ईमेल",
+      password: "पासवर्ड",
+      nameInput: "आपले नाव प्रविष्ट करा",
+      emailInput: "आपला ईमेल प्रविष्ट करा",
+      passwordInput: "पासवर्ड तयार करा",
+      creating: "खाते तयार करत आहे...",
+      createAccount: "खाते तयार करा",
+      iAmA: "मी आहे:",
+      successMessage: "खाते तयार केले! स्मार्टबजेटमध्ये आपले स्वागत आहे.",
+    },
+  };
+
+  const t = translations[language];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,7 +81,7 @@ export function SignupForm() {
     setIsLoading(true);
     try {
       await signup(values.name, values.email, values.password, userType);
-      toast.success("Account created! Welcome to SmartBudget.");
+      toast.success(t.successMessage);
       navigate("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "Failed to create account");
@@ -60,7 +95,7 @@ export function SignupForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-2">I am a:</label>
+            <label className="block text-sm font-medium mb-2">{t.iAmA}</label>
             <div className="grid grid-cols-2 gap-4">
               <Toggle
                 pressed={userType === "student"}
@@ -68,7 +103,7 @@ export function SignupForm() {
                 className="flex flex-col items-center justify-center p-4 h-auto data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/20"
               >
                 <GraduationCap className="h-6 w-6 mb-2" />
-                <span>Student</span>
+                <span>{t.student}</span>
               </Toggle>
               
               <Toggle
@@ -77,7 +112,7 @@ export function SignupForm() {
                 className="flex flex-col items-center justify-center p-4 h-auto data-[state=on]:bg-primary/10 dark:data-[state=on]:bg-primary/20"
               >
                 <Briefcase className="h-6 w-6 mb-2" />
-                <span>Professional</span>
+                <span>{t.professional}</span>
               </Toggle>
             </div>
           </div>
@@ -87,9 +122,9 @@ export function SignupForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name</FormLabel>
+                <FormLabel>{t.fullName}</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter your name" {...field} />
+                  <Input placeholder={t.nameInput} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -101,9 +136,9 @@ export function SignupForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t.email}</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="Enter your email" {...field} />
+                  <Input type="email" placeholder={t.emailInput} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -115,11 +150,11 @@ export function SignupForm() {
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>{t.password}</FormLabel>
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="Create a password"
+                    placeholder={t.passwordInput}
                     {...field}
                   />
                 </FormControl>
@@ -130,7 +165,7 @@ export function SignupForm() {
         </div>
 
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? "Creating account..." : "Create Account"}
+          {isLoading ? t.creating : t.createAccount}
         </Button>
       </form>
     </Form>

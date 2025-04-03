@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 import Index from "./pages/Index";
 import Login from "./pages/Login";
@@ -38,55 +39,57 @@ const App = () => (
     <ThemeProvider>
       <AuthProvider>
         <NotificationProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/expenses" element={
-                  <ProtectedRoute>
-                    <Expenses />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/budget" element={
-                  <ProtectedRoute>
-                    <BudgetPage />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/groups" element={
-                  <ProtectedRoute>
-                    <Groups />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/advisor" element={
-                  <ProtectedRoute>
-                    <FinancialAdvisor />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/profile/*" element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
+          <LanguageProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/expenses" element={
+                    <ProtectedRoute>
+                      <Expenses />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/budget" element={
+                    <ProtectedRoute>
+                      <BudgetPage />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/groups" element={
+                    <ProtectedRoute>
+                      <Groups />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/advisor" element={
+                    <ProtectedRoute>
+                      <FinancialAdvisor />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/profile/*" element={
+                    <ProtectedRoute>
+                      <Profile />
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </TooltipProvider>
+          </LanguageProvider>
         </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>

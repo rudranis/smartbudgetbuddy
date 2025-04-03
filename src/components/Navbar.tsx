@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -27,8 +28,12 @@ import {
   Settings,
   LightbulbIcon,
   BarChart2,
-  CreditCard
+  CreditCard,
+  Globe,
 } from "lucide-react";
+
+// Create language context
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const navItems = [
   { path: "/dashboard", name: "Dashboard", icon: LayoutDashboard },
@@ -45,6 +50,7 @@ const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -74,6 +80,47 @@ const Navbar = () => {
 
   if (isAuthPage) return null;
 
+  const getTranslation = (key) => {
+    const translations = {
+      en: {
+        dashboard: "Dashboard",
+        expenses: "Expenses",
+        budget: "Budget",
+        groups: "Groups",
+        advisor: "Financial Advisor",
+        profile: "Profile",
+        logout: "Log out",
+        settings: "Settings",
+        payments: "Payment Methods",
+        login: "Login",
+        getStarted: "Get Started",
+        slogan: "Smart Budget, Smarter You!",
+      },
+      mr: {
+        dashboard: "डॅशबोर्ड",
+        expenses: "खर्च",
+        budget: "अंदाजपत्रक",
+        groups: "गट",
+        advisor: "आर्थिक सल्लागार",
+        profile: "प्रोफाइल",
+        logout: "बाहेर पडा",
+        settings: "सेटिंग्ज",
+        payments: "पेमेंट पद्धती",
+        login: "लॉगिन",
+        getStarted: "सुरू करा",
+        slogan: "स्मार्ट बजेट, स्मार्टर यू!",
+      }
+    };
+    
+    return translations[language][key] || key;
+  };
+
+  // Translate nav items
+  const translatedNavItems = navItems.map(item => ({
+    ...item,
+    name: getTranslation(item.path.replace('/', '') || item.name.toLowerCase())
+  }));
+
   return (
     <header
       className={cn(
@@ -95,7 +142,7 @@ const Navbar = () => {
           </Link>
 
           <nav className="hidden md:flex items-center space-x-1">
-            {isAuthenticated && !isHomePage && navItems.map((item) => (
+            {isAuthenticated && !isHomePage && translatedNavItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
@@ -115,16 +162,32 @@ const Navbar = () => {
               <>
                 <Link to="/login">
                   <Button variant="outline" className="mr-2">
-                    Login
+                    {getTranslation("login")}
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button>Get Started</Button>
+                  <Button>{getTranslation("getStarted")}</Button>
                 </Link>
               </>
             )}
             
             <div className="flex items-center space-x-1 ml-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Globe className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setLanguage('en')}>
+                    English {language === 'en' && '✓'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage('mr')}>
+                    मराठी (Marathi) {language === 'mr' && '✓'}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
               <ThemeToggle />
               
               {isAuthenticated && (
@@ -154,25 +217,25 @@ const Navbar = () => {
                       <DropdownMenuItem asChild>
                         <Link to="/profile" className="cursor-pointer">
                           <User className="mr-2 h-4 w-4" />
-                          Profile
+                          {getTranslation("profile")}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to="/profile/settings" className="cursor-pointer">
                           <Settings className="mr-2 h-4 w-4" />
-                          Settings
+                          {getTranslation("settings")}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link to="/profile/payments" className="cursor-pointer">
                           <CreditCard className="mr-2 h-4 w-4" />
-                          Payment Methods
+                          {getTranslation("payments")}
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
                         <LogOut className="mr-2 h-4 w-4" />
-                        Log out
+                        {getTranslation("logout")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -182,6 +245,22 @@ const Navbar = () => {
           </nav>
 
           <div className="flex items-center space-x-2 md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Globe className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setLanguage('en')}>
+                  English {language === 'en' && '✓'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage('mr')}>
+                  मराठी (Marathi) {language === 'mr' && '✓'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <ThemeToggle />
             
             {isAuthenticated && <NotificationCenter />}
@@ -223,7 +302,7 @@ const Navbar = () => {
               </div>
               
               <nav className="flex flex-col space-y-1">
-                {navItems.map((item) => (
+                {translatedNavItems.map((item) => (
                   <Link
                     key={item.path}
                     to={item.path}
@@ -246,17 +325,17 @@ const Navbar = () => {
                   onClick={handleLogout}
                 >
                   <LogOut className="w-5 h-5 mr-3" />
-                  Logout
+                  {getTranslation("logout")}
                 </Button>
               </nav>
             </>
           ) : (
             <div className="flex flex-col space-y-4 p-4">
               <Link to="/login" onClick={closeMobileMenu}>
-                <Button variant="outline" className="w-full">Login</Button>
+                <Button variant="outline" className="w-full">{getTranslation("login")}</Button>
               </Link>
               <Link to="/signup" onClick={closeMobileMenu}>
-                <Button className="w-full">Create Account</Button>
+                <Button className="w-full">{getTranslation("getStarted")}</Button>
               </Link>
             </div>
           )}
@@ -264,7 +343,7 @@ const Navbar = () => {
           <div className="mt-8 pt-6 border-t">
             <div className="flex items-center justify-center">
               <LightbulbIcon className="h-5 w-5 text-primary mr-2" />
-              <p className="text-sm text-center italic">Smart Budget, Smarter You!</p>
+              <p className="text-sm text-center italic">{getTranslation("slogan")}</p>
             </div>
           </div>
         </div>
