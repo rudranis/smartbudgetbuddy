@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -73,7 +72,6 @@ const Navbar = () => {
   const isHomePage = location.pathname === "/";
   const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
 
-  // Don't show navbar on auth pages
   if (isAuthPage) return null;
 
   return (
@@ -87,7 +85,6 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link 
             to="/" 
             className="flex items-center space-x-2"
@@ -97,7 +94,6 @@ const Navbar = () => {
             <span className="text-primary font-bold text-xl">SmartBudget</span>
           </Link>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             {isAuthenticated && !isHomePage && navItems.map((item) => (
               <Link
@@ -185,7 +181,6 @@ const Navbar = () => {
             </div>
           </nav>
 
-          {/* Mobile Menu Button */}
           <div className="flex items-center space-x-2 md:hidden">
             <ThemeToggle />
             
@@ -207,7 +202,6 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <div
         className={cn(
           "fixed inset-0 bg-background z-40 md:hidden transform transition-transform duration-300 ease-in-out pt-16",
