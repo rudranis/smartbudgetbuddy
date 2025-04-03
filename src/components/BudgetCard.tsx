@@ -1,8 +1,13 @@
 
-import { useState, useEffect } from "react";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { AlertTriangle } from "lucide-react";
+import { 
+  ArrowDown, 
+  ArrowUp, 
+  DollarSign,
+  AlertTriangle, 
+  CheckCircle2
+} from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 export interface Budget {
   id: string;
@@ -10,7 +15,6 @@ export interface Budget {
   amount: number;
   spent: number;
   period: "weekly" | "monthly" | "yearly";
-  color?: string;
 }
 
 interface BudgetCardProps {
@@ -20,37 +24,33 @@ interface BudgetCardProps {
 }
 
 const BudgetCard = ({ budget, onClick, className }: BudgetCardProps) => {
-  const [progress, setProgress] = useState(0);
-  const percentage = (budget.spent / budget.amount) * 100;
+  // Calculate percentage spent
+  const percentSpent = (budget.spent / budget.amount) * 100;
+  const isOverBudget = budget.spent > budget.amount;
+  const isNearLimit = percentSpent >= 80 && percentSpent < 100;
   
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setProgress(percentage);
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [percentage]);
-
+  // Format currency
   const formattedAmount = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(budget.amount);
-
+  
   const formattedSpent = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(budget.spent);
-
+  
   const remaining = budget.amount - budget.spent;
   const formattedRemaining = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
-  }).format(remaining);
-
-  const isOverBudget = budget.spent > budget.amount;
-  const isCloseToLimit = percentage >= 80 && percentage < 100;
+    maximumFractionDigits: 0,
+  }).format(Math.abs(remaining));
 
   return (
     <div 
@@ -62,42 +62,55 @@ const BudgetCard = ({ budget, onClick, className }: BudgetCardProps) => {
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="font-semibold">{budget.category}</h3>
-        <span className="text-sm text-muted-foreground capitalize">{budget.period}</span>
+        <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full capitalize">
+          {budget.period}
+        </span>
       </div>
       
-      <div className="flex items-baseline justify-between mb-2">
-        <span className="text-2xl font-bold">{formattedSpent}</span>
-        <span className="text-muted-foreground">of {formattedAmount}</span>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center text-sm text-muted-foreground">
+          <DollarSign className="h-4 w-4 mr-1" />
+          <span>Total: <span className="font-medium text-foreground">{formattedAmount}</span></span>
+        </div>
+        <div className="flex items-center text-sm text-muted-foreground">
+          <span>Spent: <span className="font-medium text-foreground">{formattedSpent}</span></span>
+        </div>
       </div>
       
       <Progress 
-        value={progress > 100 ? 100 : progress} 
-        className={cn(
-          "h-2 mb-2",
-          isOverBudget ? "bg-red-100" : isCloseToLimit ? "bg-amber-100" : "bg-blue-100"
-        )} 
-        indicatorClassName={cn(
-          isOverBudget ? "bg-red-500" : isCloseToLimit ? "bg-amber-500" : "bg-blue-500"
+        value={percentSpent > 100 ? 100 : percentSpent} 
+        className="h-2 mb-2"
+        // Remove the indicatorClassName prop as it doesn't exist
+        // Using className can style the indicator via CSS
+        className={cn("h-2 mb-2", 
+          percentSpent > 90 ? 'bg-red-100' : 
+          percentSpent > 75 ? 'bg-amber-100' : 
+          'bg-green-100'
         )}
       />
       
-      <div className="flex items-center justify-between mt-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          {isOverBudget ? (
+            <div className="flex items-center text-red-500">
+              <ArrowUp className="h-3.5 w-3.5 mr-1" />
+              <span className="text-sm font-medium">Over by {formattedRemaining}</span>
+            </div>
+          ) : (
+            <div className="flex items-center text-green-500">
+              <ArrowDown className="h-3.5 w-3.5 mr-1" />
+              <span className="text-sm font-medium">{formattedRemaining} left</span>
+            </div>
+          )}
+        </div>
+        
         {isOverBudget ? (
-          <div className="flex items-center text-red-500 text-sm font-medium">
-            <AlertTriangle className="w-4 h-4 mr-1" />
-            <span>Over by {formattedRemaining.replace('-', '')}</span>
-          </div>
+          <AlertTriangle className="h-4 w-4 text-red-500" />
+        ) : isNearLimit ? (
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
         ) : (
-          <span className={cn(
-            "text-sm font-medium",
-            isCloseToLimit ? "text-amber-500" : "text-green-500"
-          )}>
-            {formattedRemaining} left
-          </span>
+          <CheckCircle2 className="h-4 w-4 text-green-500" />
         )}
-        <span className="text-sm font-medium">
-          {percentage.toFixed(0)}%
-        </span>
       </div>
     </div>
   );

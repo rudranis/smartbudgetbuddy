@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
-import BudgetCard, { Budget } from "@/components/BudgetCard";
+import BudgetCard from "@/components/BudgetCard";
+import { type Budget } from "@/components/BudgetCard";
 import AddBudgetModal from "@/components/AddBudgetModal";
 import SpendingTrendChart from "@/components/SpendingTrendChart";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 // Mock data for demonstration
 const mockBudgets: Budget[] = [
@@ -107,14 +108,13 @@ const mockYearlyTrendData = [
   { date: "2019", amount: 10500, budget: 12000 }
 ];
 
-const Budget = () => {
+const BudgetPage = () => {
   const [budgets, setBudgets] = useState<Budget[]>(mockBudgets);
   const [trendData, setTrendData] = useState(mockTrendData);
   const [weeklyTrendData, setWeeklyTrendData] = useState(mockWeeklyTrendData);
   const [yearlyTrendData, setYearlyTrendData] = useState(mockYearlyTrendData);
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
 
-  // Calculate total budget and total spent
   const totalBudget = budgets.reduce((sum, budget) => sum + budget.amount, 0);
   const totalSpent = budgets.reduce((sum, budget) => sum + budget.spent, 0);
   const remainingBudget = totalBudget - totalSpent;
@@ -135,7 +135,6 @@ const Budget = () => {
     currency: 'USD',
   }).format(remainingBudget);
 
-  // Handle adding a new budget
   const handleAddBudget = (budget: {
     category: string;
     amount: number;
@@ -151,19 +150,16 @@ const Budget = () => {
     toast.success("Budget added successfully!");
   };
 
-  // Handle time range change for trend chart
   const handleTimeRangeChange = (range: "week" | "month" | "year") => {
     setTimeRange(range);
   };
 
-  // Get current trend data based on time range
   const getCurrentTrendData = () => {
     if (timeRange === "week") return weeklyTrendData;
     if (timeRange === "year") return yearlyTrendData;
-    return trendData; // month is default
+    return trendData;
   };
 
-  // Get budgets with status (on track, warning, over budget)
   const getBudgetsWithStatus = () => {
     const onTrack = budgets.filter(budget => (budget.spent / budget.amount) < 0.8);
     const warning = budgets.filter(budget => (budget.spent / budget.amount) >= 0.8 && (budget.spent / budget.amount) < 1);
@@ -180,7 +176,6 @@ const Budget = () => {
       
       <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
-          {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
@@ -191,7 +186,6 @@ const Budget = () => {
             </div>
           </div>
           
-          {/* Budget Summary */}
           <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card className="animate-fade-in">
               <CardHeader className="pb-2">
@@ -226,12 +220,11 @@ const Budget = () => {
                 </div>
                 <Progress 
                   value={budgetPercentage > 100 ? 100 : budgetPercentage} 
-                  className="h-2 mt-2"
-                  indicatorClassName={`${
-                    budgetPercentage > 90 ? 'bg-red-500' : 
-                    budgetPercentage > 75 ? 'bg-amber-500' : 
-                    'bg-green-500'
-                  }`}
+                  className={cn("h-2 mt-2", 
+                    budgetPercentage > 90 ? 'bg-red-100' : 
+                    budgetPercentage > 75 ? 'bg-amber-100' : 
+                    'bg-green-100'
+                  )}
                 />
                 <div className="mt-2 flex items-center justify-between text-sm">
                   <span>{budgetPercentage.toFixed(0)}% used</span>
@@ -284,7 +277,6 @@ const Budget = () => {
             </Card>
           </div>
           
-          {/* Spending Trend */}
           <div className="mb-8">
             <SpendingTrendChart 
               data={getCurrentTrendData()} 
@@ -294,7 +286,6 @@ const Budget = () => {
             />
           </div>
           
-          {/* All Budgets */}
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">Your Budgets</h2>
@@ -376,7 +367,6 @@ const Budget = () => {
             </Tabs>
           </div>
           
-          {/* Budget Tips */}
           <div className="mt-12 bg-blue-50 rounded-xl p-6 border border-blue-100 animate-fade-in">
             <div className="flex items-start">
               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mr-4 flex-shrink-0">
@@ -414,4 +404,4 @@ const Budget = () => {
   );
 };
 
-export default Budget;
+export default BudgetPage;

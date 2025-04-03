@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Expenses from "./pages/Expenses";
-import Budget from "./pages/Budget";
+import BudgetPage from "./pages/Budget"; // Updated import name
 import Groups from "./pages/Groups";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
@@ -24,7 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/expenses" element={<Expenses />} />
-          <Route path="/budget" element={<Budget />} />
+          <Route path="/budget" element={<BudgetPage />} /> {/* Updated component name */}
           <Route path="/groups" element={<Groups />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />

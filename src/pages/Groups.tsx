@@ -169,7 +169,7 @@ const Groups = () => {
       totalAmount: group.totalAmount,
       date: group.date.toISOString().split("T")[0],
       members: groupMembers,
-      status: "pending",
+      status: "pending", // Explicitly using a valid status value from the union type
     };
     
     setGroups([newGroup, ...groups]);
@@ -195,7 +195,7 @@ const Groups = () => {
         return { 
           ...group, 
           members: updatedMembers,
-          status: allPaid ? "settled" : "pending"
+          status: allPaid ? "settled" : "pending" // Using valid status values
         };
       }
       return group;
