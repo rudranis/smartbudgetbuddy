@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import GroupCard, { Group, GroupMember } from "@/components/GroupCard";
@@ -169,7 +168,7 @@ const Groups = () => {
       totalAmount: group.totalAmount,
       date: group.date.toISOString().split("T")[0],
       members: groupMembers,
-      status: "pending", // Explicitly using a valid status value from the union type
+      status: "pending" as const,
     };
     
     setGroups([newGroup, ...groups]);
@@ -195,7 +194,7 @@ const Groups = () => {
         return { 
           ...group, 
           members: updatedMembers,
-          status: allPaid ? "settled" : "pending" // Using valid status values
+          status: allPaid ? "settled" : "pending" as const
         };
       }
       return group;

@@ -79,9 +79,6 @@ const BudgetCard = ({ budget, onClick, className }: BudgetCardProps) => {
       
       <Progress 
         value={percentSpent > 100 ? 100 : percentSpent} 
-        className="h-2 mb-2"
-        // Remove the indicatorClassName prop as it doesn't exist
-        // Using className can style the indicator via CSS
         className={cn("h-2 mb-2", 
           percentSpent > 90 ? 'bg-red-100' : 
           percentSpent > 75 ? 'bg-amber-100' : 
