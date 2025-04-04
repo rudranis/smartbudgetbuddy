@@ -29,7 +29,7 @@ interface TransactionListProps {
   currency?: string;
 }
 
-const TransactionList = ({ expenses, currency = "$" }: TransactionListProps) => {
+const TransactionList = ({ expenses, currency = "₹" }: TransactionListProps) => {
   // Category icon mapping
   const getCategoryIcon = (category: string) => {
     switch (category) {

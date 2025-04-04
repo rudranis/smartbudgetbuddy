@@ -34,7 +34,7 @@ interface ExpenseCardProps {
   isCompact?: boolean;
 }
 
-const ExpenseCard = ({ expense, currency = "$", isCompact = false }: ExpenseCardProps) => {
+const ExpenseCard = ({ expense, currency = "₹", isCompact = false }: ExpenseCardProps) => {
   // Category icon mapping
   const getCategoryIcon = (category: ExpenseCategory) => {
     switch (category) {

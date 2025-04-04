@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,7 +66,7 @@ export function PaymentDialog({
         // Add notification
         addNotification({
           title: "Payment Successful",
-          message: `You've successfully paid ${recipient} $${amount.toFixed(2)}${groupName ? ` for "${groupName}"` : ''}.`,
+          message: `You've successfully paid ${recipient} ₹${amount.toFixed(2)}${groupName ? ` for "${groupName}"` : ''}.`,
           type: "success",
         });
         
@@ -106,7 +105,7 @@ export function PaymentDialog({
             <CheckCircle2 className="h-12 w-12 text-green-500 mb-4" />
             <p className="text-center font-medium">Payment Successful!</p>
             <p className="text-sm text-muted-foreground text-center mt-2">
-              You've successfully paid {recipient} ${amount.toFixed(2)}.
+              You've successfully paid {recipient} ₹{amount.toFixed(2)}.
             </p>
           </div>
         ) : isError ? (
@@ -125,7 +124,7 @@ export function PaymentDialog({
             <div className="p-4 border rounded-md bg-muted/50 mb-4">
               <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="text-xl font-bold">${amount.toFixed(2)}</span>
+                <span className="text-xl font-bold">₹{amount.toFixed(2)}</span>
               </div>
               {groupName && (
                 <div className="flex justify-between items-center mt-2">
@@ -232,7 +231,7 @@ export function PaymentDialog({
                 Cancel
               </Button>
               <Button onClick={handlePayment}>
-                Pay ${amount.toFixed(2)}
+                Pay ₹{amount.toFixed(2)}
               </Button>
             </DialogFooter>
           </>
@@ -281,7 +280,7 @@ export function PaymentIntegration({ paymentType = "personal" }: PaymentIntegrat
           <div className="space-y-2">
             <Label htmlFor="amount">Amount</Label>
             <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">₹</span>
               <Input
                 id="amount"
                 className="pl-9"

@@ -308,7 +308,7 @@ export function SmartExpenseCapture({ onSubmit }: { onSubmit?: (data: any) => vo
           <div className="space-y-2">
             <Label htmlFor="amount">Amount</Label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2">$</span>
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2">₹</span>
               <Input
                 id="amount"
                 className="pl-7"

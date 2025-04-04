@@ -31,7 +31,7 @@ interface GroupCardProps {
   currency?: string;
 }
 
-const GroupCard = ({ group, currency = "$" }: GroupCardProps) => {
+const GroupCard = ({ group, currency = "₹" }: GroupCardProps) => {
   const paidMembers = group.members.filter(member => member.paid).length;
   const totalMembers = group.members.length;
   const progressPercentage = (paidMembers / totalMembers) * 100;

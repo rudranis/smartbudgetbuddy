@@ -111,9 +111,9 @@ const SettlementModal = ({
                         <p className="font-medium">{member.name}</p>
                         {member.amount && (
                           <p className="text-sm text-muted-foreground">
-                            Owes: {new Intl.NumberFormat('en-US', {
+                            Owes: {new Intl.NumberFormat('en-IN', {
                               style: 'currency',
-                              currency: 'USD',
+                              currency: 'INR',
                             }).format(member.amount)}
                           </p>
                         )}

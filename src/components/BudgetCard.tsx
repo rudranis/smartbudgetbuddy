@@ -18,7 +18,7 @@ interface BudgetCardProps {
   currency?: string;
 }
 
-const BudgetCard: FC<BudgetCardProps> = ({ budget, currency = "$" }) => {
+const BudgetCard: FC<BudgetCardProps> = ({ budget, currency = "₹" }) => {
   const percentage = (budget.spent / budget.amount) * 100;
   const isOverBudget = budget.spent > budget.amount;
   

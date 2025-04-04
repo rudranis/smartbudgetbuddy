@@ -14,7 +14,7 @@ interface StatsCardProps {
   currency?: string;
 }
 
-const StatsCard: FC<StatsCardProps> = ({ title, value, icon, change, currency = "$" }) => {
+const StatsCard: FC<StatsCardProps> = ({ title, value, icon, change, currency = "₹" }) => {
   // Format currency with Indian numbering system if INR
   const formatValue = (value: number): string => {
     if (currency === "₹") {
