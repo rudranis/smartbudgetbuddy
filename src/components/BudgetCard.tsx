@@ -1,13 +1,9 @@
 
-import { cn } from "@/lib/utils";
-import { 
-  ArrowDown, 
-  ArrowUp, 
-  DollarSign,
-  AlertTriangle, 
-  CheckCircle2
-} from "lucide-react";
+import { FC } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Edit2, Trash2 } from "lucide-react";
 
 export interface Budget {
   id: string;
@@ -19,97 +15,75 @@ export interface Budget {
 
 interface BudgetCardProps {
   budget: Budget;
-  onClick?: () => void;
-  className?: string;
+  currency?: string;
 }
 
-const BudgetCard = ({ budget, onClick, className }: BudgetCardProps) => {
-  // Calculate percentage spent
-  const percentSpent = (budget.spent / budget.amount) * 100;
+const BudgetCard: FC<BudgetCardProps> = ({ budget, currency = "$" }) => {
+  const percentage = (budget.spent / budget.amount) * 100;
   const isOverBudget = budget.spent > budget.amount;
-  const isNearLimit = percentSpent >= 80 && percentSpent < 100;
   
-  // Format currency
-  const formattedAmount = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(budget.amount);
+  // Format currency with Indian numbering system if INR
+  const formatAmount = (amount: number): string => {
+    if (currency === "₹") {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0,
+      }).format(amount);
+    }
+    return `${currency}${amount.toLocaleString()}`;
+  };
   
-  const formattedSpent = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(budget.spent);
-  
-  const remaining = budget.amount - budget.spent;
-  const formattedRemaining = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.abs(remaining));
-
   return (
-    <div 
-      className={cn(
-        "p-4 rounded-xl border bg-white shadow-subtle card-transition animate-fade-in",
-        className
-      )}
-      onClick={onClick}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="font-semibold">{budget.category}</h3>
-        <span className="text-xs font-medium bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full capitalize">
-          {budget.period}
-        </span>
-      </div>
-      
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <DollarSign className="h-4 w-4 mr-1" />
-          <span>Total: <span className="font-medium text-foreground">{formattedAmount}</span></span>
-        </div>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <span>Spent: <span className="font-medium text-foreground">{formattedSpent}</span></span>
-        </div>
-      </div>
-      
-      <Progress 
-        value={percentSpent > 100 ? 100 : percentSpent} 
-        className={cn("h-2 mb-2", 
-          percentSpent > 90 ? 'bg-red-100' : 
-          percentSpent > 75 ? 'bg-amber-100' : 
-          'bg-green-100'
-        )}
-      />
-      
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          {isOverBudget ? (
-            <div className="flex items-center text-red-500">
-              <ArrowUp className="h-3.5 w-3.5 mr-1" />
-              <span className="text-sm font-medium">Over by {formattedRemaining}</span>
-            </div>
-          ) : (
-            <div className="flex items-center text-green-500">
-              <ArrowDown className="h-3.5 w-3.5 mr-1" />
-              <span className="text-sm font-medium">{formattedRemaining} left</span>
-            </div>
-          )}
+    <Card className={`overflow-hidden ${isOverBudget ? 'border-red-200' : ''}`}>
+      <CardContent className="p-5">
+        <div className="flex justify-between items-start mb-3">
+          <div>
+            <h3 className="font-medium text-sm">{budget.category}</h3>
+            <p className="text-muted-foreground text-xs">{budget.period.charAt(0).toUpperCase() + budget.period.slice(1)}</p>
+          </div>
+          <div className="flex space-x-1">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Edit2 className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
         
-        {isOverBudget ? (
-          <AlertTriangle className="h-4 w-4 text-red-500" />
-        ) : isNearLimit ? (
-          <AlertTriangle className="h-4 w-4 text-amber-500" />
-        ) : (
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
-        )}
-      </div>
-    </div>
+        <div className="space-y-3">
+          <div className="flex justify-between items-end">
+            <div className="flex flex-col text-sm">
+              <span className="text-muted-foreground">Spent</span>
+              <span className="font-semibold text-base">{formatAmount(budget.spent)}</span>
+            </div>
+            <div className="text-right text-sm">
+              <span className={`${isOverBudget ? 'text-red-500' : 'text-green-500'}`}>
+                {isOverBudget 
+                  ? `${formatAmount(budget.spent - budget.amount)} over` 
+                  : `${formatAmount(budget.amount - budget.spent)} left`}
+              </span>
+              <div className="text-muted-foreground">
+                of {formatAmount(budget.amount)}
+              </div>
+            </div>
+          </div>
+          
+          <Progress 
+            value={Math.min(100, percentage)} 
+            className="h-2" 
+            indicatorClassName={isOverBudget ? "bg-red-500" : undefined} 
+          />
+          
+          <div className="text-xs text-right">
+            <span className={`${isOverBudget ? 'text-red-500' : 'text-muted-foreground'}`}>
+              {Math.round(percentage)}% used
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

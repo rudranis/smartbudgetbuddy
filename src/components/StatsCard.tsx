@@ -1,79 +1,59 @@
 
-import { ReactNode } from "react";
-import { cn } from "@/lib/utils";
-import { ChevronUp, ChevronDown, Minus } from "lucide-react";
+import { FC, ReactNode } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 interface StatsCardProps {
   title: string;
-  value: string | number;
+  value: number;
   icon: ReactNode;
   change?: {
     value: number;
     type: "increase" | "decrease" | "neutral";
   };
-  valuePrefix?: string;
-  className?: string;
+  currency?: string;
 }
 
-const StatsCard = ({ 
-  title, 
-  value,
-  icon,
-  change,
-  valuePrefix = "",
-  className 
-}: StatsCardProps) => {
-  const formattedValue = typeof value === 'number'
-    ? new Intl.NumberFormat('en-US', {
+const StatsCard: FC<StatsCardProps> = ({ title, value, icon, change, currency = "$" }) => {
+  // Format currency with Indian numbering system if INR
+  const formatValue = (value: number): string => {
+    if (currency === "₹") {
+      return new Intl.NumberFormat('en-IN', {
         style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: 0,
+        currency: 'INR',
         maximumFractionDigits: 0,
-      }).format(value)
-    : value;
-
+      }).format(value);
+    }
+    return `${currency}${value.toLocaleString()}`;
+  };
+  
   return (
-    <div className={cn(
-      "p-4 rounded-xl border bg-white shadow-subtle animate-fade-in flex",
-      className
-    )}>
-      <div className="flex-1 mr-4">
-        <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
-        <div className="flex items-baseline">
-          <span className="text-2xl font-bold">
-            {valuePrefix}{formattedValue}
-          </span>
-        </div>
-        
-        {change && (
-          <div className="flex items-center mt-2">
-            {change.type === "increase" ? (
-              <ChevronUp className="w-4 h-4 text-green-500 mr-1" />
-            ) : change.type === "decrease" ? (
-              <ChevronDown className="w-4 h-4 text-red-500 mr-1" />
-            ) : (
-              <Minus className="w-4 h-4 text-gray-500 mr-1" />
-            )}
-            <span 
-              className={cn(
-                "text-sm font-medium",
-                change.type === "increase" ? "text-green-500" : 
-                change.type === "decrease" ? "text-red-500" : 
-                "text-gray-500"
+    <Card>
+      <CardContent className="py-6">
+        <div className="flex items-center justify-between">
+          <div className="bg-primary/10 p-2 rounded-md">{icon}</div>
+          {change && (
+            <div className={`flex items-center space-x-1 text-xs ${
+              change.type === "increase" ? "text-green-500" :
+              change.type === "decrease" ? "text-red-500" : "text-gray-500"
+            }`}>
+              {change.type === "increase" ? (
+                <TrendingUp className="h-3 w-3" />
+              ) : change.type === "decrease" ? (
+                <TrendingDown className="h-3 w-3" />
+              ) : (
+                <Minus className="h-3 w-3" />
               )}
-            >
-              {Math.abs(change.value)}% from last period
-            </span>
-          </div>
-        )}
-      </div>
-      
-      <div className="flex items-start">
-        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-          {icon}
+              <span>{change.value}%</span>
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+        <div className="mt-4">
+          <p className="text-sm text-muted-foreground">{title}</p>
+          <h3 className="text-2xl font-bold mt-1">{formatValue(value)}</h3>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

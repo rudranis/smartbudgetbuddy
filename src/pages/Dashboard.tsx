@@ -13,6 +13,7 @@ import AddBudgetModal from "@/components/AddBudgetModal";
 import CreateGroupModal from "@/components/CreateGroupModal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import FinancialAdvisor from "@/components/FinancialAdvisor";
 import { Link } from "react-router-dom";
 import { 
   ArrowUpRight, 
@@ -20,16 +21,44 @@ import {
   TrendingUp, 
   TrendingDown, 
   ArrowRight, 
-  Bell 
+  Bell,
+  Download,
+  FileSpreadsheet,
 } from "lucide-react";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Mock data for demonstration
+// Exchange rate from USD to INR
+const USD_TO_INR_RATE = 83;
+
+// Convert USD to INR
+const convertToINR = (usdAmount: number): number => {
+  return Math.round(usdAmount * USD_TO_INR_RATE);
+};
+
+// Format currency with Indian numbering system
+const formatINR = (amount: number): string => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+// Mock data for demonstrations (converted to INR)
 const mockExpenses: Expense[] = [
   {
     id: "1",
-    amount: 45.99,
+    amount: convertToINR(45.99),
     category: "food",
     date: "2023-06-15",
     description: "Grocery Shopping",
@@ -38,7 +67,7 @@ const mockExpenses: Expense[] = [
   },
   {
     id: "2",
-    amount: 120.00,
+    amount: convertToINR(120.00),
     category: "bills",
     date: "2023-06-10",
     description: "Electricity Bill",
@@ -47,7 +76,7 @@ const mockExpenses: Expense[] = [
   },
   {
     id: "3",
-    amount: 35.50,
+    amount: convertToINR(35.50),
     category: "transport",
     date: "2023-06-08",
     description: "Gas Station",
@@ -56,7 +85,7 @@ const mockExpenses: Expense[] = [
   },
   {
     id: "4",
-    amount: 89.99,
+    amount: convertToINR(89.99),
     category: "shopping",
     date: "2023-06-05",
     description: "New Shoes",
@@ -65,7 +94,7 @@ const mockExpenses: Expense[] = [
   },
   {
     id: "5",
-    amount: 12.99,
+    amount: convertToINR(12.99),
     category: "entertainment",
     date: "2023-06-02",
     description: "Movie Tickets",
@@ -78,29 +107,29 @@ const mockBudgets: Budget[] = [
   {
     id: "1",
     category: "Food & Dining",
-    amount: 500,
-    spent: 350,
+    amount: convertToINR(500),
+    spent: convertToINR(350),
     period: "monthly"
   },
   {
     id: "2",
     category: "Transportation",
-    amount: 300,
-    spent: 220,
+    amount: convertToINR(300),
+    spent: convertToINR(220),
     period: "monthly"
   },
   {
     id: "3",
     category: "Entertainment",
-    amount: 200,
-    spent: 180,
+    amount: convertToINR(200),
+    spent: convertToINR(180),
     period: "monthly"
   },
   {
     id: "4",
     category: "Shopping",
-    amount: 400,
-    spent: 420,
+    amount: convertToINR(400),
+    spent: convertToINR(420),
     period: "monthly"
   }
 ];
@@ -110,10 +139,10 @@ const mockGroups: Group[] = [
     id: "1",
     name: "Weekend Trip to Mountains",
     description: "Cabin rental and activities",
-    totalAmount: 750,
+    totalAmount: convertToINR(750),
     date: "2023-05-25",
     members: [
-      { id: "m1", name: "Alex", paid: true },
+      { id: "m1", name: "Rudrani", paid: true },
       { id: "m2", name: "Jordan", paid: true },
       { id: "m3", name: "Taylor", paid: false },
       { id: "m4", name: "Morgan", paid: false }
@@ -124,10 +153,10 @@ const mockGroups: Group[] = [
   {
     id: "2",
     name: "Dinner at Italian Restaurant",
-    totalAmount: 240,
+    totalAmount: convertToINR(240),
     date: "2023-06-12",
     members: [
-      { id: "m1", name: "Alex", paid: true },
+      { id: "m1", name: "Rudrani", paid: true },
       { id: "m2", name: "Riley", paid: false },
       { id: "m5", name: "Casey", paid: true }
     ],
@@ -137,28 +166,84 @@ const mockGroups: Group[] = [
 ];
 
 const mockTrendData = [
-  { date: "Jan", amount: 1200, budget: 1500 },
-  { date: "Feb", amount: 1400, budget: 1500 },
-  { date: "Mar", amount: 1300, budget: 1500 },
-  { date: "Apr", amount: 1500, budget: 1500 },
-  { date: "May", amount: 1800, budget: 1500 },
-  { date: "Jun", amount: 1600, budget: 1500 }
+  { date: "Jan", amount: convertToINR(1200), budget: convertToINR(1500) },
+  { date: "Feb", amount: convertToINR(1400), budget: convertToINR(1500) },
+  { date: "Mar", amount: convertToINR(1300), budget: convertToINR(1500) },
+  { date: "Apr", amount: convertToINR(1500), budget: convertToINR(1500) },
+  { date: "May", amount: convertToINR(1800), budget: convertToINR(1500) },
+  { date: "Jun", amount: convertToINR(1600), budget: convertToINR(1500) }
 ];
 
 const mockCategoryData = [
-  { name: "Food", value: 350, color: "#FF6B6B" },
-  { name: "Transport", value: 220, color: "#4ECDC4" },
-  { name: "Shopping", value: 420, color: "#FFD166" },
-  { name: "Entertainment", value: 180, color: "#6A0572" },
-  { name: "Bills", value: 450, color: "#1A535C" }
+  { name: "Food", value: convertToINR(350), color: "#FF6B6B" },
+  { name: "Transport", value: convertToINR(220), color: "#4ECDC4" },
+  { name: "Shopping", value: convertToINR(420), color: "#FFD166" },
+  { name: "Entertainment", value: convertToINR(180), color: "#6A0572" },
+  { name: "Bills", value: convertToINR(450), color: "#1A535C" }
+];
+
+// Mock financial advice data
+const mockFinancialAdvice = [
+  {
+    id: "1",
+    type: "tip",
+    content: "Invest 20% of your savings in low-risk mutual funds for steady growth."
+  },
+  {
+    id: "2",
+    type: "alert",
+    content: "You spent ₹5,000 on shopping—30% above your monthly budget."
+  },
+  {
+    id: "3",
+    type: "insight",
+    content: "Consider reducing dining-out expenses this week to meet your saving goals."
+  },
+  {
+    id: "4",
+    type: "trend",
+    content: "NIFTY 50 gained 1.2% today. A good time to review your investment portfolio."
+  }
+];
+
+// Available users for group creation (to be used in CreateGroupModal)
+const availableUsers = [
+  { id: "u1", name: "Rudrani", email: "rudrani@example.com" },
+  { id: "u2", name: "Jordan", email: "jordan@example.com" },
+  { id: "u3", name: "Taylor", email: "taylor@example.com" },
+  { id: "u4", name: "Morgan", email: "morgan@example.com" },
+  { id: "u5", name: "Riley", email: "riley@example.com" },
+  { id: "u6", name: "Casey", email: "casey@example.com" }
 ];
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>(mockExpenses);
   const [budgets, setBudgets] = useState<Budget[]>(mockBudgets);
   const [groups, setGroups] = useState<Group[]>(mockGroups);
   const [trendData, setTrendData] = useState(mockTrendData);
   const [categoryData, setCategoryData] = useState(mockCategoryData);
+  const [financialAdvice, setFinancialAdvice] = useState(mockFinancialAdvice);
+  const [reportType, setReportType] = useState("weekly");
+  const [showBudgetAlert, setShowBudgetAlert] = useState(false);
+
+  useEffect(() => {
+    // Check for budget alerts
+    const checkBudgetAlerts = () => {
+      const overBudgetCategories = budgets.filter(budget => budget.spent > budget.amount);
+      if (overBudgetCategories.length > 0) {
+        setShowBudgetAlert(true);
+        const category = overBudgetCategories[0];
+        const overspent = category.spent - category.amount;
+        toast.warning(
+          `Budget Alert: Overspent ${formatINR(overspent)} on ${category.category}!`,
+          { duration: 5000 }
+        );
+      }
+    };
+    
+    checkBudgetAlerts();
+  }, [budgets]);
 
   // Handle adding a new expense
   const handleAddExpense = (expense: {
@@ -187,6 +272,9 @@ const Dashboard = () => {
       newCategoryData[categoryIndex].value += expense.amount;
       setCategoryData(newCategoryData);
     }
+
+    // Show success message
+    toast.success("New expense added successfully!");
   };
   
   // Handle adding a new budget
@@ -202,6 +290,7 @@ const Dashboard = () => {
     };
     
     setBudgets([...budgets, newBudget]);
+    toast.success("New budget created successfully!");
   };
   
   // Handle creating a new group
@@ -211,10 +300,11 @@ const Dashboard = () => {
     category: string;
     totalAmount: number;
     date: Date;
-    members: { name: string; email: string }[];
+    members: { id: string; name: string; email: string }[];
   }) => {
+    // Convert members format to match the Group interface
     const groupMembers = group.members.map((member) => ({
-      id: uuidv4(),
+      id: member.id || uuidv4(),
       name: member.name,
       paid: false,
     }));
@@ -231,6 +321,12 @@ const Dashboard = () => {
     };
     
     setGroups([newGroup, ...groups]);
+    toast.success("New group expense created successfully!");
+  };
+
+  // Handle report download
+  const handleReportDownload = () => {
+    toast.success(`${reportType === 'weekly' ? 'Weekly' : 'Monthly'} report downloaded successfully!`);
   };
 
   return (
@@ -243,7 +339,7 @@ const Dashboard = () => {
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold">Welcome back, Alex</h1>
+                <h1 className="text-2xl font-bold">Welcome back, {user?.name || "Rudrani"}</h1>
                 <p className="text-muted-foreground">Here's an overview of your finances</p>
               </div>
               <div className="flex space-x-4">
@@ -259,27 +355,31 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatsCard
               title="Total Balance"
-              value={5840}
+              value={convertToINR(5840)}
               icon={<Wallet className="h-5 w-5" />}
               change={{ value: 12, type: "increase" }}
+              currency="₹"
             />
             <StatsCard
               title="Monthly Spending"
-              value={1620}
+              value={convertToINR(1620)}
               icon={<ArrowUpRight className="h-5 w-5" />}
               change={{ value: 8, type: "increase" }}
+              currency="₹"
             />
             <StatsCard
               title="Income"
-              value={3200}
+              value={convertToINR(3200)}
               icon={<TrendingUp className="h-5 w-5" />}
               change={{ value: 0, type: "neutral" }}
+              currency="₹"
             />
             <StatsCard
               title="Savings"
-              value={1580}
+              value={convertToINR(1580)}
               icon={<TrendingDown className="h-5 w-5" />}
               change={{ value: 4, type: "decrease" }}
+              currency="₹"
             />
           </div>
           
@@ -287,6 +387,60 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <SpendingTrendChart data={trendData} />
             <CategoriesPieChart data={categoryData} />
+          </div>
+          
+          {/* Budget Performance Report */}
+          <div className="mb-8 bg-white p-6 rounded-xl shadow-sm border">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Budget Performance Report</h2>
+              <div className="flex items-center space-x-3">
+                <Select
+                  value={reportType}
+                  onValueChange={setReportType}
+                >
+                  <SelectTrigger className="w-32 h-9">
+                    <SelectValue placeholder="Select Period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Button variant="outline" size="sm" onClick={handleReportDownload}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+                
+                <Button variant="outline" size="sm" onClick={handleReportDownload}>
+                  <FileSpreadsheet className="mr-2 h-4 w-4" />
+                  Export
+                </Button>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {budgets.map((budget) => (
+                <div 
+                  key={budget.id} 
+                  className={`p-4 rounded-lg ${budget.spent > budget.amount ? 'bg-red-50 border border-red-200' : 'bg-gray-50 border border-gray-200'}`}
+                >
+                  <p className="text-sm text-gray-500 mb-1">{budget.category}</p>
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-xl font-semibold">{formatINR(budget.spent)}</p>
+                    <p className={`text-sm ${budget.spent > budget.amount ? 'text-red-500' : 'text-green-500'}`}>
+                      {budget.spent > budget.amount ? `+${formatINR(budget.spent - budget.amount)}` : `${formatINR(budget.amount - budget.spent)} left`}
+                    </p>
+                  </div>
+                  <div className="mt-2 bg-gray-200 h-2 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full ${budget.spent > budget.amount ? 'bg-red-500' : 'bg-green-500'}`} 
+                      style={{width: `${Math.min(100, (budget.spent / budget.amount) * 100)}%`}}
+                    ></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
           
           {/* Quick Access */}
@@ -297,6 +451,7 @@ const Dashboard = () => {
                   <TabsTrigger value="expenses">Recent Expenses</TabsTrigger>
                   <TabsTrigger value="budgets">Budgets</TabsTrigger>
                   <TabsTrigger value="groups">Group Expenses</TabsTrigger>
+                  <TabsTrigger value="advisor">Financial Advisor</TabsTrigger>
                 </TabsList>
                 
                 <div className="hidden md:block">
@@ -312,7 +467,16 @@ const Dashboard = () => {
                     <AddBudgetModal onAddBudget={handleAddBudget} />
                   </TabsContent>
                   <TabsContent value="groups" className="mt-0">
-                    <CreateGroupModal onCreateGroup={handleCreateGroup} />
+                    <CreateGroupModal 
+                      onCreateGroup={handleCreateGroup} 
+                      availableUsers={availableUsers}
+                    />
+                  </TabsContent>
+                  <TabsContent value="advisor" className="mt-0">
+                    <Button variant="ghost" size="sm">
+                      View Full Analysis
+                      <ArrowRight className="ml-1 h-4 w-4" />
+                    </Button>
                   </TabsContent>
                 </div>
               </div>
@@ -320,7 +484,7 @@ const Dashboard = () => {
               <TabsContent value="expenses">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {expenses.slice(0, 3).map((expense) => (
-                    <ExpenseCard key={expense.id} expense={expense} />
+                    <ExpenseCard key={expense.id} expense={expense} currency="₹" />
                   ))}
                   <Link to="/expenses" className="flex md:hidden">
                     <Button variant="outline" className="w-full justify-center">
@@ -334,7 +498,7 @@ const Dashboard = () => {
               <TabsContent value="budgets">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {budgets.map((budget) => (
-                    <BudgetCard key={budget.id} budget={budget} />
+                    <BudgetCard key={budget.id} budget={budget} currency="₹" />
                   ))}
                   <div className="flex md:hidden mt-4">
                     <AddBudgetModal onAddBudget={handleAddBudget} />
@@ -345,12 +509,19 @@ const Dashboard = () => {
               <TabsContent value="groups">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {groups.map((group) => (
-                    <GroupCard key={group.id} group={group} />
+                    <GroupCard key={group.id} group={group} currency="₹" />
                   ))}
                   <div className="flex md:hidden mt-4">
-                    <CreateGroupModal onCreateGroup={handleCreateGroup} />
+                    <CreateGroupModal 
+                      onCreateGroup={handleCreateGroup} 
+                      availableUsers={availableUsers}
+                    />
                   </div>
                 </div>
+              </TabsContent>
+              
+              <TabsContent value="advisor">
+                <FinancialAdvisor advice={financialAdvice} />
               </TabsContent>
             </Tabs>
           </div>
@@ -358,7 +529,7 @@ const Dashboard = () => {
           {/* Transaction List */}
           <div className="mb-4">
             <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
-            <TransactionList expenses={expenses} />
+            <TransactionList expenses={expenses} currency="₹" />
           </div>
         </div>
       </main>

@@ -1,270 +1,269 @@
 
 import { useState } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger 
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Plus, X } from "lucide-react";
-import { toast } from "sonner";
+import { Calendar as CalendarIcon, UserPlus, Plus, X, Users } from "lucide-react";
+import { format } from "date-fns";
+import { Checkbox } from "@/components/ui/checkbox";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
 
 interface CreateGroupModalProps {
-  onCreateGroup?: (group: {
+  onCreateGroup: (group: {
     name: string;
     description: string;
     category: string;
     totalAmount: number;
     date: Date;
-    members: { name: string; email: string }[];
+    members: { id: string; name: string; email: string }[];
   }) => void;
+  availableUsers?: User[];
 }
 
-const groupCategories = [
-  "Trip",
-  "Dinner",
-  "Event",
-  "Roommates",
-  "Projects",
-  "Other",
-];
-
-const CreateGroupModal = ({ onCreateGroup }: CreateGroupModalProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const CreateGroupModal = ({ onCreateGroup, availableUsers = [] }: CreateGroupModalProps) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [totalAmount, setTotalAmount] = useState("");
-  const [date, setDate] = useState<Date>(new Date());
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [open, setOpen] = useState(false);
+  const [category, setCategory] = useState("Trip");
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   
-  const [members, setMembers] = useState<{ name: string; email: string }[]>([
-    { name: "", email: "" }
-  ]);
-  
-  const addMember = () => {
-    setMembers([...members, { name: "", email: "" }]);
-  };
-  
-  const removeMember = (index: number) => {
-    if (members.length > 1) {
-      setMembers(members.filter((_, i) => i !== index));
-    }
-  };
-  
-  const updateMember = (index: number, field: "name" | "email", value: string) => {
-    const newMembers = [...members];
-    newMembers[index][field] = value;
-    setMembers(newMembers);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !totalAmount || !category) {
-      toast.error("Please fill in all required fields");
+    if (!name || !amount || !date) {
       return;
     }
     
-    if (isNaN(parseFloat(totalAmount)) || parseFloat(totalAmount) <= 0) {
-      toast.error("Please enter a valid amount");
-      return;
-    }
-    
-    // Validate that all members have at least a name
-    const validMembers = members.filter(m => m.name.trim());
-    if (validMembers.length === 0) {
-      toast.error("Please add at least one group member");
-      return;
-    }
-    
-    onCreateGroup?.({
+    onCreateGroup({
       name,
       description,
       category,
-      totalAmount: parseFloat(totalAmount),
-      date,
-      members: validMembers,
+      totalAmount: parseFloat(amount),
+      date: date as Date,
+      members: selectedUsers
     });
     
-    toast.success("Group created successfully");
-    resetForm();
-    setIsOpen(false);
-  };
-  
-  const resetForm = () => {
     setName("");
     setDescription("");
-    setCategory("");
-    setTotalAmount("");
+    setAmount("");
     setDate(new Date());
-    setMembers([{ name: "", email: "" }]);
+    setCategory("Trip");
+    setSelectedUsers([]);
+    setOpen(false);
   };
-
+  
+  const toggleUserSelection = (user: User) => {
+    if (selectedUsers.some(selected => selected.id === user.id)) {
+      setSelectedUsers(selectedUsers.filter(selected => selected.id !== user.id));
+    } else {
+      setSelectedUsers([...selectedUsers, user]);
+    }
+  };
+  
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-1">
-          <Plus className="w-4 h-4" />
+        <Button>
+          <UserPlus className="mr-2 h-4 w-4" />
           Create Group
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[525px]">
         <DialogHeader>
-          <DialogTitle>Create Expense Group</DialogTitle>
+          <DialogTitle>Create Group Expense</DialogTitle>
+          <DialogDescription>
+            Create a new group expense and split it among members.
+          </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">Group Name *</Label>
-            <Input
-              id="name"
-              placeholder="e.g., Weekend Trip, Dinner Night"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Brief description of the group expense"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={2}
-            />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Category *</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="category">
+        <form onSubmit={handleSubmit}>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="col-span-3"
+                required
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="category" className="text-right">
+                Category
+              </Label>
+              <Select 
+                value={category} 
+                onValueChange={setCategory}
+              >
+                <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {groupCategories.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="Trip">Trip</SelectItem>
+                  <SelectItem value="Dinner">Dinner</SelectItem>
+                  <SelectItem value="Shopping">Shopping</SelectItem>
+                  <SelectItem value="Rent">Rent</SelectItem>
+                  <SelectItem value="Utilities">Utilities</SelectItem>
+                  <SelectItem value="Entertainment">Entertainment</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="totalAmount">Total Amount *</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="amount" className="text-right">
+                Amount (₹)
+              </Label>
+              <div className="relative col-span-3">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2">₹</span>
                 <Input
-                  id="totalAmount"
+                  id="amount"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="pl-7"
                   type="number"
+                  min="0"
                   step="0.01"
-                  placeholder="0.00"
-                  className="pl-8"
-                  value={totalAmount}
-                  onChange={(e) => setTotalAmount(e.target.value)}
                   required
                 />
               </div>
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="date">Date *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="date"
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(date) => date && setDate(date)}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label>Group Members *</Label>
-              <Button 
-                type="button"
-                variant="outline" 
-                size="sm"
-                onClick={addMember}
-              >
-                <Plus className="w-3 h-3 mr-1" /> Add Member
-              </Button>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="date" className="text-right">
+                Date
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "col-span-3 justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             
-            {members.map((member, index) => (
-              <div key={index} className="flex gap-2 items-center">
-                <Input
-                  placeholder="Name"
-                  value={member.name}
-                  onChange={(e) => updateMember(index, "name", e.target.value)}
-                  className="flex-1"
-                />
-                <Input
-                  placeholder="Email (optional)"
-                  value={member.email}
-                  onChange={(e) => updateMember(index, "email", e.target.value)}
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeMember(index)}
-                  disabled={members.length === 1}
-                  className="h-8 w-8 flex-shrink-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+            {/* Group Members Selection */}
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right pt-2">
+                Members
+              </Label>
+              <div className="col-span-3 space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {selectedUsers.map((user) => (
+                    <div 
+                      key={user.id}
+                      className="bg-blue-50 text-blue-700 rounded-full px-3 py-1 flex items-center gap-1 text-sm"
+                    >
+                      <span>{user.name}</span>
+                      <button 
+                        type="button" 
+                        onClick={() => toggleUserSelection(user)}
+                        className="text-blue-500 hover:text-blue-700"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="border rounded-md">
+                  <div className="p-2 bg-muted flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    <span className="text-sm font-medium">Available Users</span>
+                  </div>
+                  <ScrollArea className="h-[150px]">
+                    <div className="p-2">
+                      {availableUsers.length > 0 ? (
+                        availableUsers.map((user) => (
+                          <div 
+                            key={user.id} 
+                            className="flex items-center space-x-2 py-2 px-1 hover:bg-muted/50 rounded cursor-pointer"
+                            onClick={() => toggleUserSelection(user)}
+                          >
+                            <Checkbox 
+                              checked={selectedUsers.some(selected => selected.id === user.id)} 
+                              onCheckedChange={() => toggleUserSelection(user)} 
+                              id={`user-${user.id}`}
+                            />
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-6 w-6">
+                                <AvatarFallback>{user.name[0]}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <Label 
+                                  htmlFor={`user-${user.id}`}
+                                  className="text-sm font-medium cursor-pointer"
+                                >
+                                  {user.name}
+                                </Label>
+                                <p className="text-xs text-muted-foreground">{user.email}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-muted-foreground text-center py-4 text-sm">No available users</p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
-          
-          <DialogFooter className="pt-4">
+          <DialogFooter>
             <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setIsOpen(false)}
+              type="submit" 
+              disabled={!name || !amount || !date || selectedUsers.length === 0}
             >
-              Cancel
+              Create Group
             </Button>
-            <Button type="submit">Create Group</Button>
           </DialogFooter>
         </form>
       </DialogContent>

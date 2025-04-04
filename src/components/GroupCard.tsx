@@ -1,21 +1,16 @@
 
-import { cn } from "@/lib/utils";
-import { 
-  Users, 
-  DollarSign, 
-  Calendar, 
-  CheckCircle, 
-  Clock, 
-  AlertCircle
-} from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { MoreHorizontal, Calendar, Tag } from "lucide-react";
+import { format } from "date-fns";
 
 export interface GroupMember {
   id: string;
   name: string;
-  avatar?: string;
-  paid?: boolean;
-  amount?: number;
+  paid: boolean;
 }
 
 export interface Group {
@@ -25,107 +20,86 @@ export interface Group {
   totalAmount: number;
   date: string;
   members: GroupMember[];
-  status: "settled" | "pending" | "overdue";
-  category?: string;
+  status: "pending" | "settled";
+  category: string;
 }
 
 interface GroupCardProps {
   group: Group;
-  onClick?: () => void;
-  className?: string;
+  currency?: string;
 }
 
-const statusConfig = {
-  settled: {
-    icon: CheckCircle,
-    text: "Settled",
-    color: "text-green-500 bg-green-50"
-  },
-  pending: {
-    icon: Clock,
-    text: "Pending",
-    color: "text-amber-500 bg-amber-50"
-  },
-  overdue: {
-    icon: AlertCircle,
-    text: "Overdue",
-    color: "text-red-500 bg-red-50"
-  }
-};
-
-const GroupCard = ({ group, onClick, className }: GroupCardProps) => {
-  const formattedDate = new Date(group.date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
-
-  const formattedAmount = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format(group.totalAmount);
-
-  const paidCount = group.members.filter(member => member.paid).length;
+const GroupCard = ({ group, currency = "$" }: GroupCardProps) => {
+  const paidMembers = group.members.filter(member => member.paid).length;
   const totalMembers = group.members.length;
-  const StatusIcon = statusConfig[group.status].icon;
-
+  const progressPercentage = (paidMembers / totalMembers) * 100;
+  
+  // Format currency with Indian numbering system if INR
+  const formatAmount = (amount: number): string => {
+    if (currency === "₹") {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0,
+      }).format(amount);
+    }
+    return `${currency}${amount.toLocaleString()}`;
+  };
+  
   return (
-    <div 
-      className={cn(
-        "p-4 rounded-xl border bg-white shadow-subtle card-transition animate-fade-in",
-        className
-      )}
-      onClick={onClick}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold text-lg">{group.name}</h3>
-        <div className={cn(
-          "px-2 py-1 rounded-full text-xs font-medium flex items-center",
-          statusConfig[group.status].color
-        )}>
-          <StatusIcon className="w-3.5 h-3.5 mr-1" />
-          {statusConfig[group.status].text}
-        </div>
-      </div>
-      
-      {group.description && (
-        <p className="text-sm text-muted-foreground mb-3">{group.description}</p>
-      )}
-      
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center text-sm text-muted-foreground">
-          <DollarSign className="w-4 h-4 mr-1" />
-          <span className="font-semibold text-foreground">{formattedAmount}</span>
-        </div>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Calendar className="w-4 h-4 mr-1" />
-          <span>{formattedDate}</span>
-        </div>
-      </div>
-      
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <div className="flex -space-x-2 mr-2">
-            {group.members.slice(0, 3).map((member, i) => (
-              <Avatar key={member.id} className={cn("w-8 h-8 border-2 border-white", member.paid ? "ring-1 ring-green-500" : "")}>
-                <AvatarImage src={member.avatar} alt={member.name} />
-                <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-            ))}
-            {group.members.length > 3 && (
-              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium border-2 border-white">
-                +{group.members.length - 3}
-              </div>
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <CardContent className="p-5">
+        <div className="flex justify-between items-start">
+          <div>
+            <h3 className="font-medium">{group.name}</h3>
+            {group.description && (
+              <p className="text-muted-foreground text-sm mt-1">{group.description}</p>
             )}
           </div>
-          <div className="text-sm text-muted-foreground flex items-center">
-            <Users className="w-4 h-4 mr-1" />
-            <span>{paidCount}/{totalMembers} paid</span>
+          <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <div className="flex flex-col space-y-4 mt-4">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center space-x-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>{format(new Date(group.date), "dd MMM yyyy")}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Tag className="h-4 w-4 text-muted-foreground" />
+              <span>{group.category}</span>
+            </div>
+          </div>
+          
+          <div className="flex justify-between items-center">
+            <Badge variant={group.status === "settled" ? "success" : "secondary"} className="capitalize">
+              {group.status}
+            </Badge>
+            <div className="font-semibold">{formatAmount(group.totalAmount)}</div>
+          </div>
+          
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-sm">Members paid</span>
+              <span className="text-sm font-medium">{paidMembers}/{totalMembers}</span>
+            </div>
+            <Progress value={progressPercentage} className="h-2" />
+          </div>
+          
+          <div className="flex flex-wrap -space-x-3">
+            {group.members.map((member, index) => (
+              <Avatar key={member.id} className={`border-2 ${member.paid ? 'border-green-500' : 'border-gray-200'}`}>
+                <AvatarFallback className={member.paid ? 'bg-green-100 text-green-700' : ''}>
+                  {member.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            ))}
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
