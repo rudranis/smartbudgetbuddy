@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,18 @@ interface User {
   id: string;
   name: string;
   email: string;
+  avatar?: string;
 }
+
+const mockAvailableUsers: User[] = [
+  { id: "u1", name: "Priya Sharma", email: "priya@example.com", avatar: "https://i.pravatar.cc/150?img=1" },
+  { id: "u2", name: "Rahul Patel", email: "rahul@example.com", avatar: "https://i.pravatar.cc/150?img=8" },
+  { id: "u3", name: "Ananya Singh", email: "ananya@example.com", avatar: "https://i.pravatar.cc/150?img=5" },
+  { id: "u4", name: "Vikram Mehta", email: "vikram@example.com", avatar: "https://i.pravatar.cc/150?img=12" },
+  { id: "u5", name: "Neha Kapoor", email: "neha@example.com", avatar: "https://i.pravatar.cc/150?img=9" },
+  { id: "u6", name: "Arjun Kumar", email: "arjun@example.com", avatar: "https://i.pravatar.cc/150?img=3" },
+  { id: "u7", name: "Divya Gupta", email: "divya@example.com", avatar: "https://i.pravatar.cc/150?img=6" }
+];
 
 interface CreateGroupModalProps {
   onCreateGroup: (group: {
@@ -39,14 +49,14 @@ interface CreateGroupModalProps {
   availableUsers?: User[];
 }
 
-const CreateGroupModal = ({ onCreateGroup, availableUsers = [] }: CreateGroupModalProps) => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [amount, setAmount] = useState("");
+const CreateGroupModal = ({ onCreateGroup, availableUsers = mockAvailableUsers }: CreateGroupModalProps) => {
+  const [name, setName] = useState("Weekend Trip to Goa");
+  const [description, setDescription] = useState("Hotel booking and activities");
+  const [amount, setAmount] = useState("12000");
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState("Trip");
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([mockAvailableUsers[0], mockAvailableUsers[1]]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,12 +74,12 @@ const CreateGroupModal = ({ onCreateGroup, availableUsers = [] }: CreateGroupMod
       members: selectedUsers
     });
     
-    setName("");
-    setDescription("");
-    setAmount("");
+    setName("Weekend Trip to Goa");
+    setDescription("Hotel booking and activities");
+    setAmount("12000");
     setDate(new Date());
     setCategory("Trip");
-    setSelectedUsers([]);
+    setSelectedUsers([mockAvailableUsers[0], mockAvailableUsers[1]]);
     setOpen(false);
   };
   
@@ -78,6 +88,23 @@ const CreateGroupModal = ({ onCreateGroup, availableUsers = [] }: CreateGroupMod
       setSelectedUsers(selectedUsers.filter(selected => selected.id !== user.id));
     } else {
       setSelectedUsers([...selectedUsers, user]);
+    }
+  };
+  
+  const suggestedExpenses = [
+    { category: "Trip", description: "Weekend Trip to Goa", amount: "12000" },
+    { category: "Dinner", description: "Dinner at Taj Restaurant", amount: "4500" },
+    { category: "Shopping", description: "Group Shopping for Festival", amount: "8000" },
+    { category: "Rent", description: "Monthly Apartment Rent", amount: "25000" },
+    { category: "Utilities", description: "Monthly Bills Split", amount: "3000" }
+  ];
+  
+  const selectExpenseTemplate = (categoryName: string) => {
+    const template = suggestedExpenses.find(exp => exp.category === categoryName);
+    if (template) {
+      setCategory(template.category);
+      setName(template.description);
+      setAmount(template.amount);
     }
   };
   
@@ -99,35 +126,15 @@ const CreateGroupModal = ({ onCreateGroup, availableUsers = [] }: CreateGroupMod
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="col-span-3"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
-              </Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="category" className="text-right">
                 Category
               </Label>
               <Select 
                 value={category} 
-                onValueChange={setCategory}
+                onValueChange={(value) => {
+                  setCategory(value);
+                  selectExpenseTemplate(value);
+                }}
               >
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select category" />
@@ -143,6 +150,32 @@ const CreateGroupModal = ({ onCreateGroup, availableUsers = [] }: CreateGroupMod
                 </SelectContent>
               </Select>
             </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="col-span-3"
+                required
+              />
+            </div>
+            
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="amount" className="text-right">
                 Amount (₹)
@@ -161,6 +194,7 @@ const CreateGroupModal = ({ onCreateGroup, availableUsers = [] }: CreateGroupMod
                 />
               </div>
             </div>
+            
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="date" className="text-right">
                 Date
@@ -234,6 +268,7 @@ const CreateGroupModal = ({ onCreateGroup, availableUsers = [] }: CreateGroupMod
                             />
                             <div className="flex items-center gap-2">
                               <Avatar className="h-6 w-6">
+                                <AvatarImage src={user.avatar} />
                                 <AvatarFallback>{user.name[0]}</AvatarFallback>
                               </Avatar>
                               <div>
