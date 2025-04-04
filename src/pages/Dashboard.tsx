@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import StatsCard from "@/components/StatsCard";
@@ -182,8 +181,13 @@ const mockCategoryData = [
   { name: "Bills", value: convertToINR(450), color: "#1A535C" }
 ];
 
-// Mock financial advice data
-const mockFinancialAdvice = [
+interface FinancialAdvice {
+  id: string;
+  type: "tip" | "alert" | "insight" | "trend";
+  content: string;
+}
+
+const mockFinancialAdvice: FinancialAdvice[] = [
   {
     id: "1",
     type: "tip",
@@ -206,7 +210,6 @@ const mockFinancialAdvice = [
   }
 ];
 
-// Available users for group creation (to be used in CreateGroupModal)
 const availableUsers = [
   { id: "u1", name: "Rudrani", email: "rudrani@example.com" },
   { id: "u2", name: "Jordan", email: "jordan@example.com" },
@@ -228,7 +231,6 @@ const Dashboard = () => {
   const [showBudgetAlert, setShowBudgetAlert] = useState(false);
 
   useEffect(() => {
-    // Check for budget alerts
     const checkBudgetAlerts = () => {
       const overBudgetCategories = budgets.filter(budget => budget.spent > budget.amount);
       if (overBudgetCategories.length > 0) {
@@ -245,7 +247,6 @@ const Dashboard = () => {
     checkBudgetAlerts();
   }, [budgets]);
 
-  // Handle adding a new expense
   const handleAddExpense = (expense: {
     amount: number;
     category: ExpenseCategory;
@@ -262,7 +263,6 @@ const Dashboard = () => {
     
     setExpenses([newExpense, ...expenses]);
     
-    // Update category data
     const categoryIndex = categoryData.findIndex(
       (cat) => cat.name.toLowerCase() === expense.category
     );
@@ -273,11 +273,9 @@ const Dashboard = () => {
       setCategoryData(newCategoryData);
     }
 
-    // Show success message
     toast.success("New expense added successfully!");
   };
   
-  // Handle adding a new budget
   const handleAddBudget = (budget: {
     category: string;
     amount: number;
@@ -293,7 +291,6 @@ const Dashboard = () => {
     toast.success("New budget created successfully!");
   };
   
-  // Handle creating a new group
   const handleCreateGroup = (group: {
     name: string;
     description: string;
@@ -302,7 +299,6 @@ const Dashboard = () => {
     date: Date;
     members: { id: string; name: string; email: string }[];
   }) => {
-    // Convert members format to match the Group interface
     const groupMembers = group.members.map((member) => ({
       id: member.id || uuidv4(),
       name: member.name,
@@ -324,7 +320,6 @@ const Dashboard = () => {
     toast.success("New group expense created successfully!");
   };
 
-  // Handle report download
   const handleReportDownload = () => {
     toast.success(`${reportType === 'weekly' ? 'Weekly' : 'Monthly'} report downloaded successfully!`);
   };
@@ -335,7 +330,6 @@ const Dashboard = () => {
       
       <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
-          {/* Welcome Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
@@ -351,7 +345,6 @@ const Dashboard = () => {
             </div>
           </div>
           
-          {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatsCard
               title="Total Balance"
@@ -383,13 +376,11 @@ const Dashboard = () => {
             />
           </div>
           
-          {/* Charts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             <SpendingTrendChart data={trendData} />
             <CategoriesPieChart data={categoryData} />
           </div>
           
-          {/* Budget Performance Report */}
           <div className="mb-8 bg-white p-6 rounded-xl shadow-sm border">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold">Budget Performance Report</h2>
@@ -443,7 +434,6 @@ const Dashboard = () => {
             </div>
           </div>
           
-          {/* Quick Access */}
           <div className="mb-8">
             <Tabs defaultValue="expenses">
               <div className="flex items-center justify-between mb-6">
@@ -526,7 +516,6 @@ const Dashboard = () => {
             </Tabs>
           </div>
           
-          {/* Transaction List */}
           <div className="mb-4">
             <h2 className="text-xl font-semibold mb-4">Transaction History</h2>
             <TransactionList expenses={expenses} currency="₹" />
