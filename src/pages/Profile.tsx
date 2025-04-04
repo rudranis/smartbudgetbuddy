@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import {
@@ -51,7 +50,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { StockMarketDashboard } from "@/components/StockMarketDashboard";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// Translations
 const translations = {
   en: {
     accountSettings: "Account Settings",
@@ -158,7 +156,7 @@ const translations = {
     weeklyDigest: "साप्ताहिक डायजेस्ट",
     weeklyDigestDesc: "तुमच्या आर्थिक क्रियाकलापांचा साप्ताहिक सारांश मिळवा",
     marketingEmails: "मार्केटिंग ईमेल्स",
-    marketingEmailsDesc: "नवीन वैशिष्ट्ये आणि प्रमोशन्सबद्दल अपडेट्स प्राप्त करा",
+    marketingEmailsDesc: "नवीन वैशिष्ट्ये आणि प्रमोशन्सबद्दल अ��डेट्स प्राप्त करा",
     saveNotificationSettings: "सूचना सेटिंग्ज जतन करा",
     securitySettings: "सुरक्षा सेटिंग्ज",
     managePassword: "तुमचे खाते सुरक्षा आणि पासवर्ड व्यवस्थापित करा",
@@ -179,7 +177,7 @@ const translations = {
     groupStats: "गट आकडेवारी",
     yourGroupBadges: "तुमचे गट अचीव्हमेंट बॅजेस",
     investmentDashboard: "इन्वेस्टमेंट डॅशबोर्ड",
-    trackStocks: "स्टॉक मार्केट ट्रेंड्स ट्रॅक आणि मॉनिटर करा",
+    trackStocks: "स्टॉक मार्केट ट्रेंड ट्रॅक आणि मॉनिटर करा",
   },
   hi: {
     accountSettings: "अकाउंट सेटिंग्स",
@@ -271,7 +269,6 @@ const Profile = () => {
     marketingEmails: false,
   });
 
-  // Mock group badges data
   const userGroupBadges = [
     { type: 'smart-spender' as const, score: 92 },
     { type: 'top-saver' as const, score: 85 },
@@ -506,7 +503,6 @@ const Profile = () => {
                             value={profileForm.language}
                             onValueChange={(value) => {
                               handleSelectChange("language", value);
-                              // Also update the app language context
                               if (value === 'en' || value === 'mr' || value === 'hi') {
                                 const { setLanguage } = useLanguage();
                                 setLanguage(value);
