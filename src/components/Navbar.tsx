@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -109,13 +108,26 @@ const Navbar = () => {
         login: "लॉगिन",
         getStarted: "सुरू करा",
         slogan: "स्मार्ट बजेट, स्मार्टर यू!",
+      },
+      hi: {
+        dashboard: "डैशबोर्ड",
+        expenses: "खर्च",
+        budget: "बजट",
+        groups: "समूह",
+        advisor: "वित्तीय सलाहकार",
+        profile: "प्रोफाइल",
+        logout: "लॉगआउट",
+        settings: "सेटिंग",
+        payments: "भुगतान विधियाँ",
+        login: "लॉगिन",
+        getStarted: "शुरू करें",
+        slogan: "स्मार्ट बजट, स्मार्टर यू!",
       }
     };
     
     return translations[language][key] || key;
   };
 
-  // Translate nav items
   const translatedNavItems = navItems.map(item => ({
     ...item,
     name: getTranslation(item.path.replace('/', '') || item.name.toLowerCase())
@@ -184,6 +196,9 @@ const Navbar = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLanguage('mr')}>
                     मराठी (Marathi) {language === 'mr' && '✓'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLanguage('hi')}>
+                    हिंदी (Hindi) {language === 'hi' && '✓'}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -257,6 +272,9 @@ const Navbar = () => {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => setLanguage('mr')}>
                   मराठी (Marathi) {language === 'mr' && '✓'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setLanguage('hi')}>
+                  हिंदी (Hindi) {language === 'hi' && '✓'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
