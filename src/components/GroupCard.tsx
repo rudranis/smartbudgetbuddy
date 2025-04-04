@@ -11,6 +11,8 @@ export interface GroupMember {
   id: string;
   name: string;
   paid: boolean;
+  amount?: number;
+  avatar?: string;
 }
 
 export interface Group {
@@ -20,7 +22,7 @@ export interface Group {
   totalAmount: number;
   date: string;
   members: GroupMember[];
-  status: "pending" | "settled";
+  status: "pending" | "settled" | "overdue";
   category: string;
 }
 
@@ -74,7 +76,7 @@ const GroupCard = ({ group, currency = "$" }: GroupCardProps) => {
           </div>
           
           <div className="flex justify-between items-center">
-            <Badge variant={group.status === "settled" ? "success" : "secondary"} className="capitalize">
+            <Badge variant={group.status === "settled" ? "outline" : "secondary"} className={`capitalize ${group.status === "settled" ? "text-green-500 bg-green-50" : group.status === "overdue" ? "text-red-500 bg-red-50" : ""}`}>
               {group.status}
             </Badge>
             <div className="font-semibold">{formatAmount(group.totalAmount)}</div>

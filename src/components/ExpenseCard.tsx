@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 
-export type ExpenseCategory = "food" | "bills" | "transport" | "shopping" | "entertainment" | "housing" | "other";
+export type ExpenseCategory = "food" | "bills" | "transport" | "shopping" | "entertainment" | "housing" | "health" | "education" | "other";
 
 export interface Expense {
   id: string;
@@ -31,9 +31,10 @@ export interface Expense {
 interface ExpenseCardProps {
   expense: Expense;
   currency?: string;
+  isCompact?: boolean;
 }
 
-const ExpenseCard = ({ expense, currency = "$" }: ExpenseCardProps) => {
+const ExpenseCard = ({ expense, currency = "$", isCompact = false }: ExpenseCardProps) => {
   // Category icon mapping
   const getCategoryIcon = (category: ExpenseCategory) => {
     switch (category) {
@@ -49,6 +50,10 @@ const ExpenseCard = ({ expense, currency = "$" }: ExpenseCardProps) => {
         return <Film className="h-4 w-4" />;
       case "housing":
         return <Home className="h-4 w-4" />;
+      case "health":
+        return <Lightbulb className="h-4 w-4" />;
+      case "education":
+        return <Lightbulb className="h-4 w-4" />;
       default:
         return <Lightbulb className="h-4 w-4" />;
     }
@@ -71,7 +76,7 @@ const ExpenseCard = ({ expense, currency = "$" }: ExpenseCardProps) => {
   
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <CardContent className="p-5">
+      <CardContent className={`${isCompact ? 'p-3' : 'p-5'}`}>
         <div className="flex justify-between items-start">
           <div className="flex items-start space-x-3">
             <div className="bg-primary/10 p-2 rounded-lg">
@@ -100,17 +105,20 @@ const ExpenseCard = ({ expense, currency = "$" }: ExpenseCardProps) => {
             )}
           </div>
         </div>
-        <div className="flex justify-between items-center mt-4">
-          <Badge 
-            variant="secondary" 
-            className="capitalize text-xs font-normal"
-          >
-            {expense.category}
-          </Badge>
-          <Button variant="ghost" size="icon" className="h-7 w-7">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </div>
+        
+        {!isCompact && (
+          <div className="flex justify-between items-center mt-4">
+            <Badge 
+              variant="secondary" 
+              className="capitalize text-xs font-normal"
+            >
+              {expense.category}
+            </Badge>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

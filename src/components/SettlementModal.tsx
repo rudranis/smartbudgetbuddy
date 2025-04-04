@@ -104,7 +104,7 @@ const SettlementModal = ({
                       onClick={() => setSelectedMember(member.id)}
                     >
                       <Avatar className="h-10 w-10 mr-3">
-                        <AvatarImage src={member.avatar} alt={member.name} />
+                        {member.avatar && <AvatarImage src={member.avatar} alt={member.name} />}
                         <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
