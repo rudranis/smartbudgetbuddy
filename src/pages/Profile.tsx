@@ -273,9 +273,9 @@ const Profile = () => {
 
   // Mock group badges data
   const userGroupBadges = [
-    { type: 'smart-spender', score: 92 },
-    { type: 'top-saver', score: 85 },
-    { type: 'efficiency-expert', score: 78 }
+    { type: 'smart-spender' as const, score: 92 },
+    { type: 'top-saver' as const, score: 85 },
+    { type: 'efficiency-expert' as const, score: 78 }
   ];
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
